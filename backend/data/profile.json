@@ -1,0 +1,108 @@
+{
+  "basic": {
+    "name": "郑康振",
+    "gender": "男",
+    "age": 22,
+    "title": "AI 智能体开发与大模型应用实践者",
+    "phone": "17688951734",
+    "email": "895472047@qq.com",
+    "wechat": "Zz-k511"
+  },
+  "summary": "专注于 AI 领域实践，具备从 0 到 1 落地 AI 智能体与自动化工作流的实战经验，长期聚焦大模型应用层开发。熟悉 LangChain 等主流 LLM 应用框架，具备 OpenClaw 平台实际部署与调优经验（含阿里云一键部署）。擅长通过 Python 与 RPA 工具打通业务系统，将大模型能力转化为自动化生产力，通过智能体技术解决真实业务痛点。",
+  "education": [
+    {
+      "school": "深圳信息职业技术大学",
+      "major": "数字媒体技术",
+      "degree": "专科",
+      "period": "2022.09-2025.06",
+      "highlights": [
+        "AI 智能体开发：能够搭建完整智能体框架、工具链路和技能/API 调用体系",
+        "AIGC 图像生成：熟悉国内外主流 AI 模型，能生成并优化商业级视觉素材",
+        "技术开发：掌握 Python、C 语言，可独立开发自动化脚本与工具",
+        "AIGC 文本生成：深入应用 ChatGPT、DeepSeek 等模型进行对话、创作与自动化处理",
+        "数字媒体：熟练使用 Adobe 全家桶进行后期处理，保障 AIGC 成果落地质量"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "company": "深圳应势科技有限公司",
+      "role": "研发组组长",
+      "period": "2025.05-2025.10",
+      "achievements": [
+        "主导 AIGC 前沿技术研究与业务落地，覆盖从技术选型到产品化上线全流程",
+        "设计公司 AIGC 内容生产体系，为市场与运营团队提供文本与图像解决方案",
+        "负责集训营 AIGC 课程教学与项目管理，提升团队整体技术输出能力",
+        "外派北京赛优职教育科技有限公司，独立讲授《AI 智能体开发实战》并指导多项 Demo 开发，客户反馈优秀"
+      ]
+    },
+    {
+      "company": "软牛科技有限公司",
+      "role": "AI 内容运营实习生",
+      "period": "2023.07-2024.09",
+      "achievements": [
+        "基于 ChatGPT API 完成 300+ 篇外文技术文档自动摘要与本地化重写",
+        "通过提示词工程与 AI 绘画模型生成商业插图，配图设计成本降低 60%",
+        "独立开发 Python + BeautifulSoup 自动化排版工具，实现多语种内容发布自动化，产出效率提升 40%"
+      ]
+    }
+  ],
+  "skills": {
+    "ai_text": [
+      "提示工程",
+      "ChatGPT",
+      "DeepSeek",
+      "长文本生成",
+      "摘要",
+      "翻译",
+      "润色"
+    ],
+    "ai_image": [
+      "Stable Diffusion",
+      "Midjourney",
+      "模型选择",
+      "提示词撰写",
+      "参数调优"
+    ],
+    "development": [
+      "Python",
+      "自动化脚本",
+      "AIGC 工具二次开发",
+      "RPA 工作流"
+    ],
+    "media": [
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe Premiere"
+    ],
+    "llm_frameworks": [
+      "LangChain",
+      "RAG",
+      "多智能体协作"
+    ],
+    "deployment": [
+      "OpenClaw 部署与调优",
+      "阿里云服务部署",
+      "API 配置"
+    ]
+  },
+  "projects": [
+    {
+      "name": "双智能体简历作品站",
+      "role": "独立开发",
+      "status": "进行中",
+      "highlights": [
+        "使用 Python + LangGraph 搭建个人介绍智能体与电商智能体",
+        "后端采用 FastAPI 提供统一对话接口，支持智能体路由",
+        "前端实现网页交互与配置化 API 指向，便于本地/服务器切换"
+      ],
+      "tech_stack": [
+        "Python",
+        "LangGraph",
+        "FastAPI",
+        "HTML",
+        "JavaScript"
+      ]
+    }
+  ]
+}

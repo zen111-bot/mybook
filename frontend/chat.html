@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dual-Agent R&amp;D Workspace · Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="da-workspace da-chatPage" id="workspace">
+      <aside class="da-sidebar" aria-label="页面导航">
+        <div class="da-sidebarTop">
+          <div class="da-sidebarBrand">
+            <span class="da-sidebarBrandEn">AGENTS</span>
+            <span class="da-sidebarBrandCn">智能体工作空间</span>
+          </div>
+
+          <a class="da-navItem" href="./index.html">
+            <span class="da-navIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 11l9-8 9 8" />
+                <path d="M5 10v10h14V10" />
+                <path d="M9 20v-6h6v6" />
+              </svg>
+            </span>
+            <span class="da-navLabel">首页</span>
+          </a>
+          <button type="button" class="da-navItem active" id="navProfile" aria-pressed="true">
+            <span class="da-navIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </span>
+            <span class="da-navLabel">个人介绍智能体</span>
+            <span class="da-navChevron" aria-hidden="true">›</span>
+          </button>
+          <button type="button" class="da-navItem" id="navEcommerce" aria-pressed="false">
+            <span class="da-navIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+            </span>
+            <span class="da-navLabel">电商工具智能体</span>
+            <span class="da-navChevron" aria-hidden="true">›</span>
+          </button>
+
+          <div class="da-sidebarDivider" role="presentation"></div>
+          <div class="da-sidebarSectionLabel">电商任务</div>
+          <div class="da-taskChips" id="taskChips" hidden>
+            <button type="button" class="da-taskChip active" id="chipCopywriting">
+              <span class="da-taskChipIcon" aria-hidden="true">⚡</span>
+              商品文案生成
+            </button>
+            <button type="button" class="da-taskChip" id="chipReview">
+              <span class="da-taskChipIcon" aria-hidden="true">⚡</span>
+              评论分析
+            </button>
+          </div>
+        </div>
+
+        <div class="da-sidebarFooter">
+          <span class="da-sidebarFooterDot" aria-hidden="true"></span>
+          <span class="da-sidebarFooterText">系统运行中</span>
+        </div>
+      </aside>
+
+      <main class="da-chatMain">
+        <header class="da-chatHeader">
+          <div>
+            <div class="da-chatTitle">Dual-Agent R&amp;D Workspace</div>
+            <div class="da-chatSub">智能体演示沙盒 · LangGraph</div>
+          </div>
+          <div class="da-statusPill" title="本地开发环境 · 后端已连通">
+            <span class="da-statusDot" aria-hidden="true"></span>
+            <span>本地 · 已连接</span>
+          </div>
+        </header>
+
+        <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+        <div class="input-dock">
+          <div class="input-card">
+            <label for="messageInput" class="visually-hidden">消息输入</label>
+            <textarea
+              id="messageInput"
+              placeholder="输入消息… Enter 发送，Shift+Enter 换行"
+              rows="1"
+              autocomplete="off"
+            ></textarea>
+            <button type="button" class="send-btn" id="sendBtn" disabled aria-label="发送">
+              <svg class="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="./config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
