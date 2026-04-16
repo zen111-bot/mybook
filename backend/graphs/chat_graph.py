@@ -6,11 +6,10 @@ import json
 import os
 import time
 from collections.abc import Iterator
-from typing import Any, Literal, NotRequired, TypedDict
+from typing import Any
 
 import httpx
 from fastapi import HTTPException
-from langgraph.graph import END, START, StateGraph
 
 BACKEND_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROFILE_PATH = os.path.join(BACKEND_ROOT, "data", "profile.json")
@@ -21,15 +20,6 @@ ARK_CHAT_URL = os.getenv(
     "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
 )
 ARK_MODEL = os.getenv("ARK_MODEL", "doubao-seed-2-0-mini-260215")
-
-
-class ChatState(TypedDict):
-    agent: str
-    task: str
-    message: str
-    profile_data: NotRequired[dict]
-    system_prompt: NotRequired[str]
-    reply: NotRequired[str]
 
 
 def _ecommerce_prompt(task: str) -> str:
@@ -87,39 +77,22 @@ def _extract_text(response_json: dict) -> str:
     return "模型已返回结果，但未解析到文本内容。"
 
 
-def route_by_agent(state: ChatState) -> Literal["profile", "ecommerce"]:
-    if state.get("agent") == "ecommerce":
-        return "ecommerce"
-    return "profile"
-
-
-def node_load_profile(state: ChatState) -> dict:
-    return {"profile_data": _load_profile_data()}
-
-
-def node_build_system_prompt(state: ChatState) -> dict:
-    agent = state["agent"]
-    task = state["task"]
+def _build_system_prompt(agent: str, task: str) -> str:
     if agent == "ecommerce":
-        return {"system_prompt": _ecommerce_prompt(task)}
-    profile_data = state.get("profile_data") or _load_profile_data()
+        return _ecommerce_prompt(task)
+    profile_data = _load_profile_data()
     profile_json = json.dumps(profile_data, ensure_ascii=False)
-    return {
-        "system_prompt": (
-            "你是个人介绍智能体。请仅基于给定个人资料回答，不要编造经历。"
-            "如果资料中没有明确答案，请直接说明并建议用户补充 profile.json。"
-            f"以下是个人资料 JSON：{profile_json}"
-        )
-    }
+    return (
+        "你是个人介绍智能体。请仅基于给定个人资料回答，不要编造经历。"
+        "如果资料中没有明确答案，请直接说明并建议用户补充 profile.json。"
+        f"以下是个人资料 JSON：{profile_json}"
+    )
 
 
-def node_invoke_llm(state: ChatState) -> dict:
+def _invoke_llm(system_prompt: str, message: str) -> str:
     api_key = os.getenv("ARK_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="Missing ARK_API_KEY in environment variables.")
-
-    system_prompt = state.get("system_prompt") or ""
-    message = state["message"]
 
     payload = {
         "model": ARK_MODEL,
@@ -130,7 +103,6 @@ def node_invoke_llm(state: ChatState) -> dict:
     }
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
-    # 电商等长输出场景可能超过 45s，单独拉长读超时
     timeout = httpx.Timeout(connect=15.0, read=180.0, write=30.0, pool=10.0)
     try:
         with httpx.Client(timeout=timeout) as client:
@@ -151,47 +123,16 @@ def node_invoke_llm(state: ChatState) -> dict:
     reply = _extract_text(response_json)
     if not reply:
         reply = json.dumps(response_json, ensure_ascii=False)[:1000]
-    return {"reply": reply}
-
-
-def build_chat_graph() -> StateGraph:
-    graph = StateGraph(ChatState)
-    graph.add_node("load_profile", node_load_profile)
-    graph.add_node("build_system_prompt", node_build_system_prompt)
-    graph.add_node("invoke_llm", node_invoke_llm)
-
-    graph.add_conditional_edges(
-        START,
-        route_by_agent,
-        {
-            "profile": "load_profile",
-            "ecommerce": "build_system_prompt",
-        },
-    )
-    graph.add_edge("load_profile", "build_system_prompt")
-    graph.add_edge("build_system_prompt", "invoke_llm")
-    graph.add_edge("invoke_llm", END)
-    return graph
-
-
-_compiled = build_chat_graph().compile()
+    return reply
 
 
 def prepare_chat_context(agent: str, task: str, message: str) -> tuple[str, str]:
-    """与 LangGraph 一致：组装 system prompt + user 文本（供流式 Chat Completions 使用）。"""
-    state: ChatState = {"agent": agent, "task": task, "message": message}
-    if agent != "ecommerce":
-        state.update(node_load_profile(state))
-    state.update(node_build_system_prompt(state))
-    return (state.get("system_prompt") or "").strip(), message
+    """组装 system prompt + user 文本（供流式 Chat Completions 使用）。"""
+    return _build_system_prompt(agent, task).strip(), message
 
 
 def iter_ark_chat_stream(system_prompt: str, user_message: str) -> Iterator[str]:
-    """方舟 Chat API 流式调用（与官方说明一致：stream=true，SSE，delta.content / reasoning_content）。
-
-    文档：https://www.volcengine.com/docs/82379/2123275?lang=zh
-    非流式图节点仍走 Responses API（/responses）；流式为独立路径，使用 /chat/completions。
-    """
+    """方舟 Chat API 流式调用（与官方说明一致：stream=true，SSE，delta.content / reasoning_content）。"""
     api_key = os.getenv("ARK_API_KEY")
     if not api_key:
         raise RuntimeError("Missing ARK_API_KEY in environment variables.")
@@ -250,20 +191,11 @@ def iter_ark_chat_stream(system_prompt: str, user_message: str) -> Iterator[str]
 
 def run_chat(agent: str, task: str, message: str) -> tuple[str, dict[str, Any]]:
     t0 = time.perf_counter()
-    final: ChatState = _compiled.invoke(
-        {
-            "agent": agent,
-            "task": task,
-            "message": message,
-        }
-    )
+    system_prompt = _build_system_prompt(agent, task)
+    reply = _invoke_llm(system_prompt, message)
     latency_ms = (time.perf_counter() - t0) * 1000
-    reply = final.get("reply")
-    if not reply:
-        raise HTTPException(status_code=500, detail="Graph finished without reply.")
-    sp = final.get("system_prompt") or ""
-    summary = sp[:400] + ("…" if len(sp) > 400 else "")
-    approx_tokens = max(1, (len(sp) + len(message) + len(reply)) // 4)
+    summary = system_prompt[:400] + ("…" if len(system_prompt) > 400 else "")
+    approx_tokens = max(1, (len(system_prompt) + len(message) + len(reply)) // 4)
     meta: dict[str, Any] = {
         "latency_ms": round(latency_ms, 1),
         "system_prompt_summary": summary,
